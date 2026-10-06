@@ -1,0 +1,35 @@
+{
+  "seed": 7,
+  "n": 3000,
+  "control": {
+    "overall": "ok",
+    "drifted_features": [],
+    "warned_features": []
+  },
+  "drifted": {
+    "overall": "drift",
+    "drifted_features": [
+      "tenure",
+      "MonthlyCharges",
+      "TotalCharges",
+      "avg_monthly",
+      "is_new",
+      "is_monthly_contract",
+      "monthly_x_tenure",
+      "tenure_bucket"
+    ],
+    "warned_features": [],
+    "psi": {
+      "tenure": 3.624,
+      "MonthlyCharges": 2.1395,
+      "TotalCharges": 2.4643,
+      "avg_monthly": 2.2179,
+      "is_new": 0.0,
+      "is_monthly_contract": 0.0,
+      "monthly_x_tenure": 2.46,
+      "tenure_bucket": 4.0577
+    }
+  },
+  "expectation": "control -> ok (no drift flags); drifted -> drift",
+  "met": true
+}

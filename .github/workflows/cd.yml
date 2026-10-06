@@ -1,0 +1,56 @@
+name: CD
+
+# Builds and (optionally) pushes the production images.
+# The push steps REQUIRE registry credentials (DOCKERHUB_USERNAME /
+# DOCKERHUB_TOKEN repo secrets). Without them the workflow builds and
+# smoke-tests only — nothing is faked.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build API image
+        run: docker build -t churn-capstone-api:${{ github.sha }} -f Dockerfile .
+
+      - name: Build monitor image
+        run: docker build -t churn-capstone-monitor:${{ github.sha }} -f monitoring/Dockerfile .
+
+      - name: Smoke-test API image
+        run: |
+          docker run -d --name api-smoke -p 8000:8000 churn-capstone-api:${{ github.sha }}
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && break
+            sleep 2
+          done
+          curl -sf http://localhost:8000/health
+          docker stop api-smoke && docker rm api-smoke
+
+      # ---- registry push: requires secrets, skipped otherwise ----
+      - name: Log in to Docker Hub
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push images
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' }}
+        run: |
+          docker tag churn-capstone-api:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/churn-capstone-api:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/churn-capstone-api:latest
+          docker tag churn-capstone-monitor:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/churn-capstone-monitor:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/churn-capstone-monitor:latest
+
+      - name: Push skipped (no registry credentials)
+        if: ${{ secrets.DOCKERHUB_USERNAME == '' }}
+        run: echo "No DOCKERHUB_USERNAME secret set — images built and smoke-tested only."

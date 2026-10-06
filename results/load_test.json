@@ -1,0 +1,16 @@
+{
+  "n_requests": 500,
+  "workers": 20,
+  "seed": 21,
+  "errors": 0,
+  "latency_ms": {
+    "p50": 1060.26,
+    "p95": 1746.55,
+    "p99": 2240.02,
+    "mean": 1105.34,
+    "max": 3180.55
+  },
+  "throughput_rps": 18.0,
+  "total_s": 27.84,
+  "note": "Single uvicorn worker, localhost, model = calibrated XGBClassifier."
+}

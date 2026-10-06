@@ -1,0 +1,55 @@
+# Production-style compose stack for the churn model.
+#
+# HONESTY NOTE: this file was YAML-validated only (no Docker daemon was
+# available in the build environment). See README "What is real vs simulated".
+#
+#   docker compose up --build        # full stack
+#   docker compose up api            # API only
+#
+# Ports: API 8000, MLflow UI 5000.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: churn-capstone-api:0.1.0
+    ports:
+      - "8000:8000"
+    environment:
+      CHURN_MODEL_PATH: /app/models/champion.pkl
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: monitoring/Dockerfile.mlflow
+    image: churn-capstone-mlflow:0.1.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/data
+    restart: unless-stopped
+
+  monitor:
+    build:
+      context: .
+      dockerfile: monitoring/Dockerfile
+    image: churn-capstone-monitor:0.1.0
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - ./monitoring/traffic_logs:/app/monitoring/traffic_logs
+      - ./monitoring/alerts.log:/app/monitoring/alerts.log
+    restart: unless-stopped
+
+volumes:
+  mlflow-data:

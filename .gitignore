@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Models (large artifacts) — champion.pkl is intentionally committed (1.9MB, lineage documented)
+# models/*.pkl  # kept: champion.pkl committed deliberately
+
+# Monitoring outputs (regenerated)
+monitoring/traffic_logs/
+monitoring/alerts.log
+
+# Results: figures/caches are regenerated; the committed load-test record is kept.
+results/*
+!results/load_test.json
+!results/demo_drift.json
+.pytest_cache/
+.ruff_cache/
+
+# Local dev
+.env
+*.log
+.DS_Store

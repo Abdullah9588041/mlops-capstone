@@ -1,0 +1,32 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: ruff check src/ scripts/ monitoring/ tests/
+
+      - name: Fetch model artifact
+        # In CI the sibling P5 project is not present; the committed
+        # models/champion.pkl is used instead. fetch_model.py is the
+        # local-dev path (documented in README).
+        run: test -f models/champion.pkl
+
+      - name: Run tests
+        run: pytest -q
+        env:
+          PYTHONPATH: src

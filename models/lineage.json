@@ -1,0 +1,8 @@
+{
+  "artifact": "models/champion.pkl",
+  "source_project": "customer-churn-mlops (P5)",
+  "source_path": "/home/hatch/workspace/portfolio-projects/customer-churn-mlops/models/champion.pkl",
+  "sha256": "a74b66c66adc2423ff437839d4ae18748fd76d03c1c139ab8a4641b9dd542d77",
+  "copied_at": "2026-10-06T12:04:05.999634+00:00",
+  "note": "Model trained/tuned/calibrated and MLflow-tracked in P5; this project reuses it unchanged for serving + operations."
+}
